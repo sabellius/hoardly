@@ -13,9 +13,9 @@ Package manager is pnpm. Never use npm or yarn. Use `pnpm exec` for local binari
 
 - Install: `pnpm install`
 - Dev server: `pnpm start` (or `pnpm android` / `pnpm ios`)
-- Lint: `pnpm lint` (`expo lint`)
-- Typecheck: `pnpm typecheck` — TODO: script not yet added; meanwhile `pnpm exec tsc --noEmit`
-- Test: TODO: no test runner yet
+- Lint/format: `pnpm lint` / `pnpm format` (Biome — config in `biome.json`)
+- Typecheck: `pnpm typecheck`
+- Test: TODO: no test runner yet (HRD-36)
 
 ## Stack & architecture (locked in MVP planning, Aug 2026)
 
@@ -27,9 +27,11 @@ Package manager is pnpm. Never use npm or yarn. Use `pnpm exec` for local binari
 - i18n: English-only UI, but every string through `t()` with dictionary in `src/i18n/en.ts`.
 - Import via `@/*` path alias → `src/*` (see tsconfig.json)
 
-### Architecture rules
+### Architecture rules (feature-first)
 
-- Layering: `src/app/` screens → `src/features/` (query hooks) → `src/lib/repo/` (the only code allowed to import `supabase-js`) → `src/domain/` (pure, imports nothing outside domain). Enforced by ESLint import boundaries (HRD-5).
+- Structure: `src/app/` = thin Expo Router routes only → `src/features/<area>/{components,hooks}` = product areas (inventory, shopping, household, …) → `src/shared/{ui,repo,lib,i18n}` = cross-cutting → `src/domain/` = pure logic. A feature's work happens inside its folder.
+- `supabase-js` may only be imported inside `src/shared/repo/*`; routes never import `@/shared/repo` (data flows through feature hooks); `src/domain/` imports nothing outside domain. Enforced by Biome `noRestrictedImports` overrides.
+- Features may import each other when justified; prefer moving shared code to `src/shared/`.
 - Schema changes only via new files in `supabase/migrations/` — append-only, forward-only. Never via dashboard SQL editor on shared projects.
 - Dev backend: `supabase start` local emulator (primary); `supabase db push` to the cloud dev project for on-device testing.
 
