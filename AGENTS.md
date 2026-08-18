@@ -17,13 +17,29 @@ Package manager is pnpm. Never use npm or yarn. Use `pnpm exec` for local binari
 - Typecheck: `pnpm typecheck` — TODO: script not yet added; meanwhile `pnpm exec tsc --noEmit`
 - Test: TODO: no test runner yet
 
-## Stack & architecture (tentative — pre-planning)
+## Stack & architecture (locked in MVP planning, Aug 2026)
 
-Scaffold decisions and current plan; will be finalized in the MVP plan doc, then updated here.
-
-- Expo SDK 57 (RN 0.86, React 19.2, TypeScript strict), Expo Router v57, `src/app/` = routes
-- Planned: expo-sqlite + Drizzle ORM, offline-first; sync via Supabase (auth/RLS) + PowerSync; expo-notifications local reminders; expo-camera barcode scanning; OpenFoodFacts product lookup
+- Expo SDK 57 (RN 0.86, React 19.2, TypeScript strict), Expo Router v57, `src/app/` = routes. iOS + Android only.
+- Styling: NativeWind (Tailwind) if spike HRD-1 passes; fallback `src/theme/tokens.ts` + StyleSheet. Tokens live in one place either way.
+- Backend: Supabase — magic-link auth, Postgres + RLS (household-scoped security), realtime, private storage bucket. Free tier; auth SMTP via free Brevo.
+- Client data: TanStack Query + async-storage persister = offline-read snapshot cache. Online-first; offline writes are rejected with a clear state (locked decision "C"). No local DB, no sync engine in v1.
+- Tests: jest-expo + @testing-library/react-native.
+- i18n: English-only UI, but every string through `t()` with dictionary in `src/i18n/en.ts`.
 - Import via `@/*` path alias → `src/*` (see tsconfig.json)
+
+### Architecture rules
+
+- Layering: `src/app/` screens → `src/features/` (query hooks) → `src/lib/repo/` (the only code allowed to import `supabase-js`) → `src/domain/` (pure, imports nothing outside domain). Enforced by ESLint import boundaries (HRD-5).
+- Schema changes only via new files in `supabase/migrations/` — append-only, forward-only. Never via dashboard SQL editor on shared projects.
+- Dev backend: `supabase start` local emulator (primary); `supabase db push` to the cloud dev project for on-device testing.
+
+## Ticket-driven git workflow
+
+- All work is tracked in YouTrack project `HRD` — no ticket, no code.
+- One ticket = one branch named `HRD-<n>-<kebab-desc>` (e.g. `HRD-15-inventory-list-screen`). Never commit directly to `main`.
+- Land branches with `git merge --no-ff` preserving atomic commits.
+- Reference the ticket at the end of the message, never in the title — last line as a trailer: `Refs: HRD-15`.
+- Move ticket states in YouTrack manually — commit messages never auto-resolve tickets.
 
 ## Security — repo is PUBLIC
 
