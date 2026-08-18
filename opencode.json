@@ -6,6 +6,9 @@
     },
     "youtrack": {
       "enabled": true
+    },
+    "supabase": {
+      "enabled": true
     }
   },
   "formatter": {
