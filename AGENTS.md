@@ -15,7 +15,7 @@ Package manager is pnpm. Never use npm or yarn. Use `pnpm exec` for local binari
 - Dev server: `pnpm start` (or `pnpm android` / `pnpm ios`)
 - Lint/format: `pnpm lint` / `pnpm format` (Biome — config in `biome.json`)
 - Typecheck: `pnpm typecheck`
-- Test: TODO: no test runner yet (HRD-36)
+- Test: `pnpm test` (watch) / `pnpm test:ci` (single run + coverage)
 
 ## Stack & architecture (locked in MVP planning, Aug 2026)
 
