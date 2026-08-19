@@ -10,3 +10,8 @@ pre-commit:
       skip:
         - run: test "${NO_TYPECHECK:-0}" -eq 1
       run: pnpm typecheck
+
+pre-push:
+  jobs:
+    - name: test
+      run: pnpm test:ci
