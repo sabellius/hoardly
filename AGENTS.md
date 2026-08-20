@@ -20,7 +20,7 @@ Package manager is pnpm. Never use npm or yarn. Use `pnpm exec` for local binari
 ## Stack & architecture (locked in MVP planning, Aug 2026)
 
 - Expo SDK 57 (RN 0.86, React 19.2, TypeScript strict), Expo Router v57, `src/app/` = routes. iOS + Android only.
-- Styling: NativeWind (Tailwind) if spike HRD-1 passes; fallback `src/theme/tokens.ts` + StyleSheet. Tokens live in one place either way.
+- Styling: NativeWind v4 (Tailwind 3.4.x) — spike HRD-1 passed on SDK 57. pnpm quirk: `react-native-css-interop` must stay a direct dependency (babel rewrites JSX imports to it). Design tokens live in `tailwind.config.js` theme.
 - Backend: Supabase — magic-link auth, Postgres + RLS (household-scoped security), realtime, private storage bucket. Free tier; auth SMTP via free Brevo.
 - Client data: TanStack Query + async-storage persister = offline-read snapshot cache. Online-first; offline writes are rejected with a clear state (locked decision "C"). No local DB, no sync engine in v1.
 - Tests: jest-expo + @testing-library/react-native.
